@@ -58,6 +58,7 @@ static void set_options(HttpSession* session, HttpOptions* options) {
 HttpSession* http_client_new_session(HttpOptions* options) {
     HttpSession* session = malloc(sizeof (HttpSession));
     if (session) {
+        curl_global_init(CURL_GLOBAL_DEFAULT);
         session->curl = curl_easy_init();
         set_options(session, options);        
     }
@@ -67,6 +68,7 @@ HttpSession* http_client_new_session(HttpOptions* options) {
 void http_client_free_session(HttpSession* session) {
     if (session) {
         curl_easy_cleanup(session->curl);
+        curl_global_cleanup();
         free(session);
     }
 }
