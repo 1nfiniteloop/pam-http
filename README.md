@@ -31,9 +31,9 @@ auth     [success=done perm_denied=die new_authtok_reqd=done default=ignore]    
 
 The options within the brackets above means:
 
-* A successfull auth request will return success to the application, without calling any further modules in the stack by using `success=done`.
-* Errors such as connectivity issues, outdated certificateallows fallback to unix passwd authentication by using `default=ignore`.
-* Until here it's equivalent to use *sufficient*. The difference here is `perm_denied=die` which stops evaluation of further modules in the pam-stack when "401 - Permission Denied" is returned from the auth-server.
+* `success=done` a successfull auth request will return success to the application, without calling any further modules in the stack.
+* `default=ignore` errors such as connectivity issues, outdated certificateallows falls back to unix passwd authentication.
+* `perm_denied=die` stops evaluation of further modules in the pam-stack when "401 - Permission Denied" is returned from the auth-server. Except for this item it's equivalent to replace the entire bracket with the keyword *sufficient*.
 
 
 Available command-line options in format "key=value" are:
@@ -41,7 +41,7 @@ Available command-line options in format "key=value" are:
 * **timeout=**    *optional, default 30s* - Max timeout for a http request.
 * **url=**        *required* - Url endpoint used for authentication.
 * **cert-path=**  *optional* - Prefix path for certificate files below.
-* **cacert=**     *optional* - Bundled certificate chain with intermediate and root certificate used to validate server certificate.
+* **cacert=**     *optional* - Bundled certificate chain used to validate the server certificate, containing intermediate and root certificates.
 * **key=, cert=** *optional* - Client certificate.
 
 ## API
@@ -63,5 +63,6 @@ Some sources of inspiration used within this project:
 * http://www.linux-pam.org/Linux-PAM-html/
 * https://github.com/linux-pam/linux-pam/
 * https://fedetask.com/write-linux-pam-module/
-* https://github.com/gmjosack/nss_http
+* https://github.com/CyberDem0n/pam-oauth2
+* https://github.com/quarxConnect/pam_oauth2
 

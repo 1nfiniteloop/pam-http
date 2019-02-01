@@ -29,18 +29,18 @@
 #include "pam-http/http_client.h"
 
 
-struct SessionImpl {
+struct HttpSessionImpl {
     CURL *curl;
 };
 
 /* Response body not used */
-static size_t HttpResponseBodyCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+static size_t http_response_body_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     return size * nmemb;
 }
 
-void setOptions(Session* session, HttpOptions* options) {
+static void set_options(HttpSession* session, HttpOptions* options) {
     if (options) {
-        ClientCert* clientCert = &options->clientCert;
+        HttpClientCert* clientCert = &options->clientCert;
         if (clientCert->cert && clientCert->key) {
             curl_easy_setopt(session->curl, CURLOPT_SSLCERT, clientCert->cert);
             curl_easy_setopt(session->curl, CURLOPT_SSLKEY, clientCert->key);
@@ -55,27 +55,27 @@ void setOptions(Session* session, HttpOptions* options) {
     }
 }
 
-Session* newSession(HttpOptions* options) {
-    Session* session = malloc(sizeof (Session));
+HttpSession* http_client_new_session(HttpOptions* options) {
+    HttpSession* session = malloc(sizeof (HttpSession));
     if (session) {
         session->curl = curl_easy_init();
-        setOptions(session, options);        
+        set_options(session, options);        
     }
     return session;
 }
 
-void freeSession(Session* session) {
+void http_client_free_session(HttpSession* session) {
     if (session) {
         curl_easy_cleanup(session->curl);
         free(session);
     }
 }
 
-HttpResponse* post(Session* session, const char* url, const char* parameters) {
+HttpResponse* http_client_post(HttpSession* session, const char* url, const char* parameters) {
     HttpResponse* response = malloc(sizeof(HttpResponse));
     response->body = NULL; /* Not used at the moment */
     curl_easy_setopt(session->curl, CURLOPT_URL, url);
-    curl_easy_setopt(session->curl, CURLOPT_WRITEFUNCTION, HttpResponseBodyCallback);
+    curl_easy_setopt(session->curl, CURLOPT_WRITEFUNCTION, http_response_body_callback);
     curl_easy_setopt(session->curl, CURLOPT_POSTFIELDSIZE, (long) strlen(parameters));
     curl_easy_setopt(session->curl, CURLOPT_COPYPOSTFIELDS, parameters);
     CURLcode res = curl_easy_perform(session->curl);
@@ -87,7 +87,7 @@ HttpResponse* post(Session* session, const char* url, const char* parameters) {
     return response;
 }
 
-char* encodeParameter(Session *session, const Parameter* parameter) {
+static char* encode_parameter(HttpSession *session, const HttpParameter* parameter) {
     char* keyEncoded = curl_easy_escape(session->curl, parameter->key, strlen(parameter->key));
     char* valueEncoded = curl_easy_escape(session->curl, parameter->value, strlen(parameter->value));
     size_t size = strlen(keyEncoded) + /* delimiterSize */ 1 + strlen(valueEncoded) + /* null-termination */ 1;
@@ -98,14 +98,14 @@ char* encodeParameter(Session *session, const Parameter* parameter) {
     return parameterStr;
 }
 
-char* encodeParameters(Session* session, const Parameter* parameters[], const size_t len) {
+char* http_client_encode_parameters(HttpSession* session, const HttpParameter* parameters[], const size_t len) {
     char* parameterStr = NULL;
     if (len) {
         const char* delimiter = "&";
         size_t totalSize = 0;
         char* encodedParameter[len];
         for (int i = 0; i < len; i++) {
-            encodedParameter[i] = encodeParameter(session, parameters[i]);
+            encodedParameter[i] = encode_parameter(session, parameters[i]);
             totalSize += strlen(encodedParameter[i]);
         }
         parameterStr = calloc((totalSize + /* no of delimiters */ (len - 1) + /* null-termination */ 1), sizeof (char));

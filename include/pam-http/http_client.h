@@ -22,15 +22,8 @@
  * THE SOFTWARE.
  */
 
-/* 
- * File:   client.h
- * Author: lars
- *
- * Created on January 14, 2019, 9:05 PM
- */
-
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef HTTP_CLIENT_H
+#define HTTP_CLIENT_H
 
 #include <stddef.h>
 #include <stdbool.h>
@@ -48,7 +41,7 @@ extern "C" {
     typedef struct {
         const char* key;
         const char* value;
-    } Parameter;
+    } HttpParameter;
 
     /**
      * Options provided for creating a session.
@@ -56,12 +49,12 @@ extern "C" {
     typedef struct {
         const char* key;
         const char* cert;
-    } ClientCert;
+    } HttpClientCert;
     
     typedef struct {
         long timeout;
         const char* cacert;
-        ClientCert clientCert;
+        HttpClientCert clientCert;
     } HttpOptions;
 
     /**
@@ -78,7 +71,7 @@ extern "C" {
         HttpError err;
     } HttpResponse;
     
-    typedef struct SessionImpl Session;
+    typedef struct HttpSessionImpl HttpSession;
     
     /**
      * Create a new session.
@@ -86,14 +79,14 @@ extern "C" {
      * @param options
      * @return session
      */
-    Session* newSession(HttpOptions* options);
+    HttpSession* http_client_new_session(HttpOptions* options);
     
     /**
      * Free resources held by session.
      * 
      * @param session
      */
-    void freeSession(Session* session);
+    void http_client_free_session(HttpSession* session);
     
     /**
      * Build a parameter string to use e.g. when calling post(...).
@@ -103,7 +96,7 @@ extern "C" {
      * @param len
      * @return encoded parameter string. Caller must free returned value after usage.
      */
-    char* encodeParameters(Session* session, const Parameter* parameters[], const size_t len);
+    char* http_client_encode_parameters(HttpSession* session, const HttpParameter* parameters[], const size_t len);
     
     /**
      * Send a HTTP POST request.
@@ -113,12 +106,12 @@ extern "C" {
      * @param parameters
      * @return http response. Caller must free returned value after usage.
      */
-    HttpResponse* post(Session* session, const char* url, const char* parameters);
+    HttpResponse* http_client_post(HttpSession* session, const char* url, const char* parameters);
     
     
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CLIENT_H */
+#endif /* HTTP_CLIENT_H */
 

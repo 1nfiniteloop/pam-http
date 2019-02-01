@@ -28,15 +28,15 @@
 #include "pam-http/http_client.h"
 
 
-char* createHttpParameters(Session* session, const AuthContext* ctx) {
+static char* create_http_parameters(HttpSession* session, const AuthContext* ctx) {
     const size_t size = 2;
-    const Parameter *parameters[size];
-    parameters[0] = &(Parameter){"user", ctx->userName};
-    parameters[1] = &(Parameter){"service", ctx->serviceName};
-    return encodeParameters(session, parameters, size);
+    const HttpParameter *parameters[size];
+    parameters[0] = &(HttpParameter){"user", ctx->userName};
+    parameters[1] = &(HttpParameter){"service", ctx->serviceName};
+    return http_client_encode_parameters(session, parameters, size);
 }
 
-HttpOptions* createHttpOptions(const Options* options) {
+static HttpOptions* create_http_options(const Options* options) {
     HttpOptions* httpOptions = malloc(sizeof(HttpOptions));
     httpOptions->timeout = options->timeout;
     httpOptions->cacert = options->cacert;
@@ -45,9 +45,9 @@ HttpOptions* createHttpOptions(const Options* options) {
     return httpOptions;
 }
 
-HttpAuthResponse* sendHttpAuthRequest(Session* session, const char* url, const char* parameters) {
-    HttpAuthResponse* authResponse = malloc(sizeof(HttpAuthResponse));
-    HttpResponse* resp = post(session, url, parameters);
+static AuthResponse* send_http_auth_request(HttpSession* session, const char* url, const char* parameters) {
+    AuthResponse* authResponse = malloc(sizeof(AuthResponse));
+    HttpResponse* resp = http_client_post(session, url, parameters);
         if (resp->err.error) {
             authResponse->status = AUTH_ERROR;
             authResponse->errMsg = resp->err.msg;       /* Unsuccessful request */
@@ -67,13 +67,13 @@ HttpAuthResponse* sendHttpAuthRequest(Session* session, const char* url, const c
     return authResponse;
 }
 
-HttpAuthResponse* authenticate(const Options* options, const AuthContext* ctx) {
-    HttpOptions* httpOptions = createHttpOptions(options);
-    Session* session = newSession(httpOptions);
-    char* parameters = createHttpParameters(session, ctx);
-    HttpAuthResponse* authResponse = sendHttpAuthRequest(session, options->url, parameters);
+AuthResponse* http_auth_authenticate(const Options* options, const AuthContext* ctx) {
+    HttpOptions* httpOptions = create_http_options(options);
+    HttpSession* session = http_client_new_session(httpOptions);
+    char* parameters = create_http_parameters(session, ctx);
+    AuthResponse* authResponse = send_http_auth_request(session, options->url, parameters);
     free(parameters);
-    freeSession(session);
+    http_client_free_session(session);
     free(httpOptions);
     return authResponse;
 }

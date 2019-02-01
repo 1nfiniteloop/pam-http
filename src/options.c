@@ -29,7 +29,7 @@
 #include "string.h" /* memset, strncmp, strrchr, strdup */
 #include "stdlib.h" /* free */
 
-char* valueAsString(const Args* args, const char* key, char* defaultValue) {
+static char* value_as_string(const Args* args, const char* key, char* defaultValue) {
     char* value = defaultValue;
     size_t len = strlen(key);
     for (int i = 0; i < args->size; i++) {
@@ -42,9 +42,9 @@ char* valueAsString(const Args* args, const char* key, char* defaultValue) {
     return value ? strdup(value) : value;
 }
 
-long valueAsLong(const Args* args, const char* key, long defaultValue) {
+static long value_as_long(const Args* args, const char* key, long defaultValue) {
     long numericValue = defaultValue;
-    char* value = valueAsString(args, key, NULL);
+    char* value = value_as_string(args, key, NULL);
     if (value != NULL) {
         numericValue = atol(value);
         free(value);
@@ -52,7 +52,7 @@ long valueAsLong(const Args* args, const char* key, long defaultValue) {
     return numericValue;
 }
 
-const size_t lenWithoutTrailingSlash(const char* path) {
+static const size_t len_without_trailing_slash(const char* path) {
     size_t len = strlen(path);
     if ((path + len - 1) == strrchr(path, '/')) {
         --len;
@@ -60,10 +60,10 @@ const size_t lenWithoutTrailingSlash(const char* path) {
     return len;
 }
 
-char* absolutePath(const char* path, char* file) {
+static char* absolute_path(const char* path, char* file) {
     char* absolutePath = NULL;
     if (file && path) {
-        const size_t pathLength = lenWithoutTrailingSlash(path);
+        const size_t pathLength = len_without_trailing_slash(path);
         const size_t len = pathLength + /* trailing slash */ 1 + strlen(file) + /* null termination */ 1;
         absolutePath = calloc(len, sizeof(char));
         strncat(absolutePath, path, pathLength);
@@ -77,19 +77,19 @@ char* absolutePath(const char* path, char* file) {
     return absolutePath;
 }
 
-Options* parseOptions(const Args* args) {
+Options* options_parse(const Args* args) {
     Options* options = malloc(sizeof(Options));
     if (options != NULL) {
         memset(options, 0, sizeof(Options));
-        char* certpath = valueAsString(args, "cert-path", NULL);
-        char* cacert = valueAsString(args, "cacert", NULL);
-        char* key = valueAsString(args, "key", NULL);
-        char* cert = valueAsString(args, "cert", NULL);
-        options->timeout = valueAsLong(args, "timeout", OPT_DEFAULT_TIMEOUT);
-        options->url = valueAsString(args, "url", NULL);
-        options->cacert = absolutePath(certpath, cacert);
-        options->key = absolutePath(certpath, key);
-        options->cert = absolutePath(certpath, cert);
+        char* certpath = value_as_string(args, "cert-path", NULL);
+        char* cacert = value_as_string(args, "cacert", NULL);
+        char* key = value_as_string(args, "key", NULL);
+        char* cert = value_as_string(args, "cert", NULL);
+        options->timeout = value_as_long(args, "timeout", OPT_DEFAULT_TIMEOUT);
+        options->url = value_as_string(args, "url", NULL);
+        options->cacert = absolute_path(certpath, cacert);
+        options->key = absolute_path(certpath, key);
+        options->cert = absolute_path(certpath, cert);
         if (cert) {
             free(cert);
         }
@@ -106,7 +106,7 @@ Options* parseOptions(const Args* args) {
     return options;
 }
 
-void freeOptions(Options* opt) {
+void options_free(Options* opt) {
     if (opt != NULL) {
         if (opt->url) {
             free(opt->url);

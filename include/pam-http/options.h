@@ -22,15 +22,8 @@
  * THE SOFTWARE.
  */
 
-/* 
- * File:   options.h
- * Author: lars
- *
- * Created on January 13, 2019, 3:44 PM
- */
-
-#ifndef OPTIONS_H
-#define OPTIONS_H
+#ifndef HTTP_OPTIONS_H
+#define HTTP_OPTIONS_H
 
 #define OPT_DEFAULT_TIMEOUT 30L
 
@@ -57,19 +50,19 @@ extern "C" {
      * @param args
      * @return options
      */
-    Options* parseOptions(const Args* args);
+    Options* options_parse(const Args* args);
 
     /**
      * Free memory resources.
      *
      * @param opt
      */
-    void freeOptions(Options* opt);
+    void options_free(Options* opt);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* OPTIONS_H */
+#endif /* HTTP_OPTIONS_H */
 

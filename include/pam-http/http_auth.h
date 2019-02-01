@@ -22,15 +22,8 @@
  * THE SOFTWARE.
  */
 
-/* 
- * File:   authenticate.h
- * Author: lars
- *
- * Created on January 18, 2019, 10:25 PM
- */
-
-#ifndef AUTHENTICATE_H
-#define AUTHENTICATE_H
+#ifndef HTTP_AUTHENTICATE_H
+#define HTTP_AUTHENTICATE_H
 
 #include "pam-http/options.h"
 
@@ -58,7 +51,7 @@ extern "C" {
     typedef struct {
         AuthResponseStatus status;
         const char* errMsg;
-    } HttpAuthResponse;
+    } AuthResponse;
 
     /**
      * Send an authentication request.
@@ -67,12 +60,12 @@ extern "C" {
      * @param ctx
      * @return auth response. Caller must free returned value after usage.
      */
-    HttpAuthResponse* authenticate(const Options* options, const AuthContext* ctx);
+    AuthResponse* http_auth_authenticate(const Options* options, const AuthContext* ctx);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* AUTHENTICATE_H */
+#endif /* HTTP_AUTHENTICATE_H */
 

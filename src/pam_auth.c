@@ -50,7 +50,7 @@
 typedef int PamStatus;
 
 
-PamStatus getServiceName(pam_handle_t *pamh, const char** serviceName) {
+static PamStatus get_service_name(pam_handle_t *pamh, const char** serviceName) {
     PamStatus status;
     int retval = pam_get_item(pamh, PAM_SERVICE, (const void **) serviceName);
     if (retval != PAM_SUCCESS || serviceName == NULL || *serviceName == NULL) {
@@ -62,7 +62,7 @@ PamStatus getServiceName(pam_handle_t *pamh, const char** serviceName) {
     return status;
 }
 
-PamStatus getUserName(pam_handle_t *pamh, const char** userName) {
+static PamStatus get_user_name(pam_handle_t *pamh, const char** userName) {
     PamStatus status;
     int retval = pam_get_user(pamh, userName, NULL);
     if (retval != PAM_SUCCESS || userName == NULL || *userName == NULL) {
@@ -74,7 +74,7 @@ PamStatus getUserName(pam_handle_t *pamh, const char** userName) {
     return status;
 }
 
-PamStatus userExists(pam_handle_t *pamh, const char* username) {
+static PamStatus user_exists(pam_handle_t *pamh, const char* username) {
     PamStatus status;
     struct passwd *pw = pam_modutil_getpwnam(pamh, username);
     if (pw == NULL) {
@@ -86,9 +86,9 @@ PamStatus userExists(pam_handle_t *pamh, const char* username) {
     return status;
 }
 
-PamStatus authenticateUser(const Options* options, const char* userName, const char* serviceName) {
+static PamStatus authenticate_user(const Options* options, const char* userName, const char* serviceName) {
     PamStatus status;
-    HttpAuthResponse* resp = authenticate(options, &(AuthContext){userName, serviceName});
+    AuthResponse* resp = http_auth_authenticate(options, &(AuthContext){userName, serviceName});
     if (resp->status == AUTH_AUTHORIZED) {
         status = PAM_SUCCESS;
     } else if (resp->status == AUTH_UNAUTHORIZED) {
@@ -108,17 +108,17 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     const char* userName;
     const char* serviceName;
     
-    PamStatus statusCode = getServiceName(pamh, &serviceName);
+    PamStatus statusCode = get_service_name(pamh, &serviceName);
     if (statusCode == PAM_SUCCESS) {
-        statusCode = getUserName(pamh, &userName);
+        statusCode = get_user_name(pamh, &userName);
     }
     if (statusCode == PAM_SUCCESS) {
-        statusCode = userExists(pamh, userName);
+        statusCode = user_exists(pamh, userName);
     }
     if (statusCode == PAM_SUCCESS) {
-        Options* options = parseOptions(&(Args){argv, argc});
-        statusCode = authenticateUser(options, userName, serviceName);
-        freeOptions(options);
+        Options* options = options_parse(&(Args){argv, argc});
+        statusCode = authenticate_user(options, userName, serviceName);
+        options_free(options);
     }
     return statusCode;
 }
