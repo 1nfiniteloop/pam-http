@@ -1,0 +1,17 @@
+// Ref: https://code.visualstudio.com/docs/remote/containers#_devcontainerjson-reference
+{
+	"name": "C++",
+	"dockerFile": "Dockerfile",
+	"extensions": [
+		"ms-vscode.cpptools",
+		"twxs.cmake",
+		"vector-of-bool.cmake-tools"
+	],
+	"runArgs": [
+		"--name=pam-http.vscode",
+		"--volume=vscode.cache:/home/build",
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined"
+	]
+}
