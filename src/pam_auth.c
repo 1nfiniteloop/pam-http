@@ -51,21 +51,22 @@ static PamStatus get_user_name(pam_handle_t *pamh, const char** userName) {
     return status;
 }
 
-static PamStatus user_exists(pam_handle_t *pamh, const char* username) {
+static PamStatus get_user_id(pam_handle_t *pamh, const char* userName, char* userId) {
     PamStatus status;
-    struct passwd *pw = pam_modutil_getpwnam(pamh, username);
+    struct passwd *pw = pam_modutil_getpwnam(pamh, userName);
     if (pw == NULL) {
         status = PAM_USER_UNKNOWN;
-        PAM_DEBUG("User %s does not exist" ENDLINE, username);
+        PAM_DEBUG("User %s does not exist" ENDLINE, userName);
     } else {
+        sprintf(userId, "%u", pw->pw_uid);
         status = PAM_SUCCESS;
     }
     return status;
 }
 
-static PamStatus authenticate_user(const Options* options, const char* userName, const char* serviceName) {
+static PamStatus authenticate_user(const Options* options, const char* userId, const char* serviceName) {
     PamStatus status;
-    AuthResponse* resp = http_auth_authenticate(options, &(AuthContext){userName, serviceName});
+    AuthResponse* resp = http_auth_authenticate(options, &(AuthContext){userId, serviceName});
     if (resp->status == AUTH_AUTHORIZED) {
         status = PAM_SUCCESS;
     } else if (resp->status == AUTH_UNAUTHORIZED) {
@@ -82,19 +83,20 @@ static PamStatus authenticate_user(const Options* options, const char* userName,
 
 int pam_sm_authenticate(pam_handle_t *pamh, int flags,
                                    int argc, const char **argv) {
-    const char* userName;
-    const char* serviceName;
+    const char* userName = NULL;
+    const char* serviceName = NULL;
+    char userId[12];  // Max 10 characters for 32bit value.
     
     PamStatus statusCode = get_service_name(pamh, &serviceName);
     if (statusCode == PAM_SUCCESS) {
         statusCode = get_user_name(pamh, &userName);
     }
     if (statusCode == PAM_SUCCESS) {
-        statusCode = user_exists(pamh, userName);
+        statusCode = get_user_id(pamh, userName, userId);
     }
     if (statusCode == PAM_SUCCESS) {
         Options* options = options_parse(&(Args){argv, argc});
-        statusCode = authenticate_user(options, userName, serviceName);
+        statusCode = authenticate_user(options, userId, serviceName);
         options_free(options);
     }
     return statusCode;

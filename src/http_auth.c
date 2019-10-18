@@ -7,7 +7,7 @@
 static char* create_http_parameters(HttpSession* session, const AuthContext* ctx) {
     const size_t size = 2;
     const HttpParameter *parameters[size];
-    parameters[0] = &(HttpParameter){"user", ctx->userName};
+    parameters[0] = &(HttpParameter){"unix_account_id", ctx->userId};
     parameters[1] = &(HttpParameter){"service", ctx->serviceName};
     return http_client_encode_parameters(session, parameters, size);
 }

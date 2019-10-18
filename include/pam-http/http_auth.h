@@ -11,7 +11,7 @@ extern "C" {
      * Which context the authentication request is for.
      */
     typedef struct {
-        const char* userName;
+        const char* userId;
         const char* serviceName;
     } AuthContext;
 

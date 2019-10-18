@@ -35,7 +35,7 @@ private:
     }
 
     bool authenticate(const std::string &data) {
-        return data == "user=valid%20user&service=login";
+        return data == "unix_account_id=1000&service=login";
     }
     
     bool matchesPrefix(const std::string &url, const std::string &str) const {

@@ -46,7 +46,7 @@ TEST(TestHttpClient, TestErrorResponseOnFaultyUrl) {
 TEST(TestHttpClient, TestResponseCodeOnSuccessfulHttpPost) {
     HttpOptions* opt = NULL;
     HttpSession* session = http_client_new_session(opt);
-    HttpResponse* resp = http_client_post(session, "http://localhost:8080/api/auth", "user=valid%20user&service=login");
+    HttpResponse* resp = http_client_post(session, "http://localhost:8080/api/auth", "unix_account_id=1000&service=login");
     ASSERT_EQ(HTTP_RESP_OK, resp->responseCode) << "error: " << resp->err.msg << std::endl;
     free(resp);
     http_client_free_session(session);
@@ -55,7 +55,7 @@ TEST(TestHttpClient, TestResponseCodeOnSuccessfulHttpPost) {
 TEST(TestHttpClient, TestErrorResponseOnSuccessfulHttpPost) {
     HttpOptions* opt = NULL;
     HttpSession* session = http_client_new_session(opt);
-    HttpResponse* resp = http_client_post(session, "http://localhost:8080/api/auth", "user=valid%20user&service=login");
+    HttpResponse* resp = http_client_post(session, "http://localhost:8080/api/auth", "unix_account_id=1000&service=login");
     ASSERT_FALSE(resp->err.error);
     free(resp);
     http_client_free_session(session);
