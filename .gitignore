@@ -1,4 +1,2 @@
-/dist/
-/build/
-nbproject/
-external/
+build/
+.vscode/
