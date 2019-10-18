@@ -6,11 +6,24 @@ The purpose for developing this pam-module is to delegate the authentication pro
 
 By using a simple HTTP POST request we allow the remote party (authentication server) to decide wether to use ldap, sql-database, or even omit local password prompting for other authentication schemes such as Oauth2, OpenID, BankID. A mutual trust between server and pam-client is establish using ssl server & client certificates.
 
-## Build & install
+## Build
 
-1. Install required packages `libcurl4`, `libcurl4-openssl-dev` and `libpam0g-dev` (on Ubuntu).
-2. Build libpam with `make CONF=release all`
-3. Copy the `pam-http/dist/Release/GNU-Linux/libpam-http.so` into `/lib/x86_64-linux-gnu/security` (on Ubuntu).
+1. Create build-environment with `docker build --tag=pam-http-builder:1.0.0 .devcontainer/`.
+2. Build pam_http
+  ```bash
+  docker run \
+      --rm \
+      --workdir=/home/build \
+      --volume=$(pwd):/home/build \
+      --name=pam-http-builder \
+      --user=$(id -u):$(id -g) \
+      pam-http-builder:1.0.0 \
+      /bin/bash -c 'mkdir build && cd build && cmake .. && make package'
+  ```
+
+## Install
+
+Install pam_http from the debian package: `sudo dpkg -i build/pam-http-1.0.0-Linux.deb`
 
 ## Configuration
 
@@ -52,9 +65,9 @@ The server can choose to send a 200 status code for grant authentication or 401 
 
 ## Develop
 
-The project is built with Netbeans IDE, using a docker-container as remote build host. See Dockerfile for setting up a complete development environment. Tests is written in C++ for conveniece and have further dependencies located as git submodules under folder `external/`.
+The project is built using a docker-container as development environment, see further in `.devcontainer/Dockerfile`. Tests is written in C++ for conveniece and have further dependencies located as git submodules under folder `external/`.
 
-To get tests running you need to build the libraries gtest and httpmockserver under `external/` and install package `libmicrohttpd-dev` which the http mock server uses.
+If you want to build unittests you need to first build the libraries gtest and httpmockserver under `external/.` Build unittests with `cmake -DWITH_UNITTEST=ON ..` followed by `make test_all`.
 
 ## Reference
 
