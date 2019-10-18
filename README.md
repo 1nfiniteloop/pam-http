@@ -65,9 +65,13 @@ The server can choose to send a 200 status code for grant authentication or 401 
 
 ## Develop
 
-The project is built using a docker-container as development environment, see further in `.devcontainer/Dockerfile`. Tests is written in C++ for conveniece and have further dependencies located as git submodules under folder `external/`.
+The project is built using a docker-container as development environment, see further in `.devcontainer/Dockerfile`. Tests is written in C++ for conveniece and have further dependencies located as git submodules under folder `third_party/`.
 
-If you want to build unittests you need to first build the libraries gtest and httpmockserver under `external/.` Build unittests with `cmake -DWITH_UNITTEST=ON ..` followed by `make test_all`.
+If you want to build unittests you need to first build the libraries gtest and httpmockserver under `third_party/.` 
+
+1. Initialize git submodules with `git submodule update --init`.
+2. Build gtest/gmock and httpmockserver.
+3. Build pam_http with unittests using `cd build && cmake -DWITH_UNITTEST=ON ..` followed by `make test_all`.
 
 ## Reference
 

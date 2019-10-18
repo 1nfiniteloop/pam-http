@@ -16,7 +16,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb3")
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake-modules)
 set(SOURCE_DIR  ${PROJECT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
-set(THIRD_PARTY ${PROJECT_SOURCE_DIR}/external)
+set(THIRD_PARTY ${PROJECT_SOURCE_DIR}/third_party)
 
 add_subdirectory(src)
 

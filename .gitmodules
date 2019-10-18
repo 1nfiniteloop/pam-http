@@ -1,6 +1,6 @@
 [submodule "external/httpmockserver"]
-	path = external/httpmockserver
+	path = third_party/httpmockserver
 	url = https://github.com/seznam/httpmockserver.git
 [submodule "external/googletest"]
-	path = external/googletest
+	path = third_party/googletest
 	url = https://github.com/google/googletest.git
