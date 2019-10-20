@@ -11,11 +11,17 @@ actually is performed. Compare with options like kerberos, ldap, pam_*sql,
 which is both higly coupled to a specific implemetation and complicated to
 install & configure.
 
-By using a simple HTTP POST request we allow the remote party (authentication
-server) to decide wether to use ldap, sql-database, or even omit local password
-prompting for other authentication schemes such as Oauth2, OpenID, Webauthn or 
-BankID. A mutual trust between server and pam-client is establish using ssl
-server & client certificates.
+By using a simple HTTP POST request the authentication api is standardized and
+independent of the underlying implementation and scheme. A mutual trust between
+server and pam-client is establish using ssl server & client certificates. The
+remote party (authentication server) could use ldap, password-database or
+enables usage of other authentication schemes such as OpenID and Webauthn
+only intended for web services.
+
+This pam-plugin is built for usage with a webauth server using OpenID (from
+Google or others) for authentication instead of promting for passwords.
+
+See more @ <https://github.com/1nfiniteloop/webauth>.
 
 ## Build
 
@@ -45,16 +51,17 @@ file in `/etc/pam.d`. Example `su` has its own configuration file named
 accordingly, same as for `login`, `sudo`, `passwd` etc. A pam-module consists
 of four different services; auth, session, account, password which always is
 present in each configuration file. 
-See more @ http://www.linux-pam.org/Linux-PAM-html/sag-configuration-file.html
+See more @ <http://www.linux-pam.org/Linux-PAM-html/sag-configuration-file.html>
 
 This module implements only the *auth* service, this is the only service you
 need to reconfigure. Below is an example for `/etc/pam.d/login`. You might place
-the pam-http configuration just above the common-auth include.
+the pam-http configuration just above the common-auth include or optionally
+inside `/etc/pam.d/common-auth`, at the top.
 
 ```conf
 ...
 # Custom http authentication
-auth     [success=done perm_denied=die new_authtok_reqd=done default=ignore]     libpam-http.so url=https://auth-server.com:443/api/auth cert-path=/etc/pam-http.d/ssl key=client.key.pem cert=client.cert.pem cacert=ca-chain.cert.pem
+auth     [success=done perm_denied=die new_authtok_reqd=done default=ignore]     pam_http.so url=https://auth-server.com:443/api/auth cert-path=/etc/pam-http.d/ssl key=client.key.pem cert=client.cert.pem cacert=ca-chain.cert.pem
 
 # Standard Un*x authentication.
 @include common-auth
